@@ -1,11 +1,10 @@
-CREATE TABLE items (
-	event_time TIMESTAMPTZ,
-	event_type TEXT,
+CREATE TABLE IF NOT EXISTS items (
 	product_id INTEGER,
-	price FLOAT,
-	user_id BIGINT,
-	user_session UUID
+	category_id BIGINT,
+	category_code TEXT,
+	brand TEXT
 );
 
-COPY data_2022_oct(event_time, event_type, product_id, price, user_id, user_session)
-FROM '/subject/customer/data_2022_oct.csv' DELIMITER ',' CSV HEADER;
+TRUNCATE items;
+COPY items(product_id, category_id, category_code, brand)
+FROM '/subject/item/item.csv' DELIMITER ',' CSV HEADER;

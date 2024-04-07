@@ -1,4 +1,4 @@
-CREATE TABLE &1 (
+CREATE TABLE IF NOT EXISTS thefile (
 	event_time TIMESTAMPTZ,
 	event_type TEXT,
 	product_id INTEGER,
@@ -7,8 +7,6 @@ CREATE TABLE &1 (
 	user_session UUID
 );
 
-TRUNCATE &1;
-COPY &1(event_time, event_type, product_id, price, user_id, user_session)
-FROM &2 DELIMITER ',' CSV HEADER;
-
--- ! FIX THIS TODAY
+TRUNCATE thefile; 
+COPY thefile(event_time, event_type, product_id, price, user_id, user_session)
+FROM thepath DELIMITER ',' CSV HEADER;
