@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: "${DB_HOST}"
+    expose:
+      - "${DB_PORT}"
+    environment:
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      POSTGRES_DB: "${DB_NAME}"
+      POSTGRES_HOST_AUTH_METHOD: "md5"
+    restart: on-failure
+    volumes:
+      - /var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: on-failure
+    ports:
+      - 8080:8080
