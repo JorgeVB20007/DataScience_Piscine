@@ -4,6 +4,7 @@ import psycopg2
 import matplotlib.pyplot as plt
 import datetime
 from tqdm import tqdm
+import pandas
 
 def main():
 	load_dotenv()
@@ -26,27 +27,41 @@ def main():
 
 
 	init_time = datetime.datetime(2022, 10, 1, 0, 0, 0)
-	end_time = datetime.datetime(2022, 10, 10, 0, 0, 0)
+	end_time = datetime.datetime(2022, 10, 14, 0, 0, 0)
+	# end_time = datetime.datetime(2023, 3, 1, 0, 0, 0)
 
 	current_time = init_time
-	values = {}
+	values = []
+	full_values = {}
+	dates = []
 
 	print("Making some queries...")
+	cur.execute("""CREATE TABLE IF NOT EXISTS purchasers (
+	event_time TIMESTAMPTZ,
+	user_id BIGINT,
+	price FLOAT
+	);
+	TRUNCATE purchasers;
+	INSERT INTO purchasers(event_time, user_id, price)
+	SELECT event_time, user_id, price FROM customers WHERE "event_type" = 'purchase';""")
 
 	while (current_time < end_time):
-		print("A", current_time)
-		cur.execute('SELECT COUNT(*) FROM customers WHERE "event_time" >= \'{0}\' AND "event_time" < \'{1}\''.format(current_time, current_time + datetime.timedelta(days=1)))
-		print("B", current_time)
-		values[init_time] = cur.fetchone()[0]
-		print("C", current_time)
+		cur.execute('SELECT COUNT(*) FROM purchasers WHERE "event_time" >= \'{0}\' AND "event_time" < \'{1}\''.format(current_time, current_time + datetime.timedelta(days=1)))
+		values.append(cur.fetchone()[0])
+		dates.append(current_time)
+		cur.execute('SELECT * FROM purchasers WHERE "event_time" >= \'{0}\' AND "event_time" < \'{1}\''.format(current_time, current_time + datetime.timedelta(days=1)))
+		full_values[current_time] = cur.fetchall()
 		current_time += datetime.timedelta(days=1)
-		print("D", current_time)
 
-	# while (current_time < end_time):
-	# 	print(current_time)
-	# 	current_time += datetime.timedelta(days=1)
 
-	print(values)
+	fig, ax = plt.subplots()
+
+	ax.plot(values)
+
+	try:
+		plt.show()
+	except KeyboardInterrupt as msg:
+		print(msg)
 
 
 	# view     = 9_654_310
