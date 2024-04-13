@@ -82,7 +82,7 @@ ORDER BY
 
 DROP TABLE customers;
 DROP TABLE items;
-DROP TABLE merged_table
+DROP TABLE merged_table;
 
-ALTER table final_customers
+ALTER TABLE final_customers
 RENAME TO customers;
