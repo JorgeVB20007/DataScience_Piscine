@@ -3,3 +3,4 @@
 .vscode
 subject
 data_202*
+*.pgsql
