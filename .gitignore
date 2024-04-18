@@ -6,3 +6,4 @@ data_202*
 *.pgsql
 a.sql
 b.sql
+*.csv

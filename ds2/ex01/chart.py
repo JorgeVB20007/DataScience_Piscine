@@ -2,7 +2,6 @@ import os
 from dotenv import load_dotenv
 import psycopg2
 import matplotlib.pyplot as plt
-import datetime
 from tqdm import tqdm
 import pandas as pd
 
@@ -18,16 +17,11 @@ def main():
 		port = os.getenv('DB_PORT')
 	)
 
-
 	try:
 		cur = conn.cursor()
 	except Exception as msg:
 		print(msg)
 		return
-
-	init_time = datetime.datetime(2022, 10, 1, 0, 0, 0)
-	end_time = datetime.datetime(2022, 10, 14, 0, 0, 0)
-	# end_time = datetime.datetime(2023, 3, 1, 0, 0, 0)
 
 	print("Creating temp table...")
 	cur.execute("""CREATE TABLE IF NOT EXISTS purchasers (
@@ -53,7 +47,6 @@ def main():
 	tot_income = []
 	avg_spending = []
 	for date, group_df in grouped:
-		# print(group_df)
 		dates.append(date)
 		tot_users.append(group_df.count()[0])
 
