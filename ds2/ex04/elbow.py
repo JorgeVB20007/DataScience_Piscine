@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import pandas as pd
 import sklearn
-
+from sklearn.cluster import KMeans
+import datetime
 
 
 
@@ -13,16 +14,18 @@ import sklearn
 
 def create_user_intel(thegroup: tuple) -> list:
 	result = []
+	basket = thegroup[1].groupby(thegroup[1][2])[3]
+
 	result.append(thegroup[0])				# user_id
-	result.append(len(thegroup[1].index))	# total_purchases
+	result.append(basket.ngroups)			# total_purchases
 	result.append(thegroup[1][3].sum())		# total_expense
 
-	basket = thegroup[1].groupby(thegroup[1][2])
-	reduced_basket = [x.sum() for x in basket]
-	total_basket = reduced_basket.mean()
+	reduced_basket = [x[1].sum() for x in basket]
+	total_basket = sum(reduced_basket) / len(reduced_basket)
 
 	result.append(total_basket)				# average_expense
-	result.append(thegroup[1][0])			# last_purchase
+	# print("###", type(thegroup[1][0].iloc[0]), thegroup[1][0].iloc[0])
+	result.append((datetime.datetime(2023, 3, 1, tzinfo=None) -  thegroup[1][0].iloc[0].to_pydatetime().replace(tzinfo=None)).total_seconds())			# last_purchase
 
 	return result
 
@@ -78,14 +81,26 @@ def main():
 	print(user_total_expense)
 	print("---------- 3 ----------")
 
+	used_data = pd.DataFrame({'recency': user_total_expense['last_purchase'], 'frequency': user_total_expense['total_purchases']})
 
-#	Create tables:
-	#	user_total_expense
-	#	user_average_expense
-	#	user_number_of_purchases
-	#	user_last_purchase
+	print(used_data)
 
-	print("Loading results...")
+	print("---------- 4 ----------")
+	distorsions = []
+	for k in range(2, 20):
+		kmeans = KMeans(n_clusters=k)
+		kmeans.fit(used_data)
+		distorsions.append(kmeans.inertia_)
+
+	plt.figure(200)
+	plt.plot(range(2, 20), distorsions)
+	plt.grid(True)
+
+
+	try:
+		plt.show()
+	except KeyboardInterrupt as msg:
+		print(msg)
 
 
 

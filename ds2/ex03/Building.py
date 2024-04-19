@@ -55,7 +55,12 @@ def main():
 	sorted_money = money.value_counts(bins=6, sort=True)
 	money_gaps = [x.left + (x.left - x.right) / 2 for x in sorted_money.index]
 
+	printed_values = []
+	a = 0
 
+	for x in sorted_money.values:
+		printed_values.append(x * (money_gaps[a] + 25))
+		a += 1
 
 	plt.figure(100)
 
@@ -68,8 +73,9 @@ def main():
 		bar.set_linewidth(1)
 
 	plt.figure(200)
+	print(money_gaps)
 
-	bars2 = plt.bar([x + 25 for x in money_gaps], sorted_money.values, width=50)
+	bars2 = plt.bar([x + 25 for x in money_gaps], printed_values, width=50)
 	plt.xlabel("monetary value in ₳")
 	plt.ylabel("customers")
 	plt.xlim(-40, 250)

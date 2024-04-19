@@ -40,7 +40,8 @@ def main():
 
 	print("count\t{:.6f}".format(sorted.size))
 	print("mean\t{:.6f}".format(sorted.mean()[0]))
-	print("std\t{:.6f}".format(sorted.median()[0]))
+	print("med\t{:.6f}".format(sorted.median()[0]))
+	print("std\t{:.6f}".format(sorted.std()[0]))
 	print("min\t{:.6f}".format(sorted.min()[0]))
 	print("25%\t{:.6f}".format(sorted.quantile(0.25)[0]))
 	print("50%\t{:.6f}".format(sorted.quantile(0.5)[0]))
