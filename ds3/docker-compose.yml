@@ -4,8 +4,8 @@ services:
   db:
     image: postgres:15-alpine
     container_name: "${DB_HOST}"
-    expose:
-      - "${DB_PORT}"
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
     environment:
       POSTGRES_USER: "${DB_USER}"
       POSTGRES_PASSWORD: "${DB_PASSWORD}"

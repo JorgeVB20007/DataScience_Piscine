@@ -1,65 +1,103 @@
-# import os
-# from dotenv import load_dotenv
-# import psycopg2
-# import matplotlib.pyplot as plt
+import os
+from dotenv import load_dotenv
+import psycopg2
+import matplotlib.pyplot as plt
+import numpy as np
 
 
-# def main():
-# 	load_dotenv()
+def test_knight(cur, graph_divisions):
+	cur.execute("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = N'test_knight'")
+	test_titles = [title[0] for title in cur.fetchall()]
 
-# 	print("Connecting to DB...")
-# 	conn = psycopg2.connect(
-# 		host = 'localhost',
-# 		dbname = os.getenv('DB_NAME'),
-# 		user = os.getenv('DB_USER'),
-# 		password = os.getenv('DB_PASSWORD'),
-# 		port = os.getenv('DB_PORT')
-# 	)
+	fig, ax = plt.subplots(6, 5, figsize=(16, 16))
 
+	curr_graph = 0
+	for title in test_titles:
+		cur.execute("SELECT \"{}\" FROM test_knight".format(title))
+		values = [value[0] for value in cur.fetchall()]
+		spacing = np.linspace(min(values), max(values), graph_divisions)
+		digitized = np.digitize(values, spacing, right=False)
+		y = [0 for _ in range(graph_divisions)]
+		for digit in digitized:
+			y[digit - 1] += 1
+		ax[int(curr_graph / 5), int(curr_graph % 5)].bar(spacing, y, color="#00990088", width=(spacing[2] - spacing[1]), label="Knight")
+		ax[int(curr_graph / 5), int(curr_graph % 5)].legend(loc="upper right")
+		ax[int(curr_graph / 5), int(curr_graph % 5)].set_title(title)
+		# print(values)
+		curr_graph += 1
 
-# 	try:
-# 		cur = conn.cursor()
-# 	except Exception as msg:
-# 		print(msg)
-# 		return
-
-# 	print("Executing query 1/4...")
-# 	cur.execute('SELECT COUNT(*) FROM customers WHERE "event_type" = \'remove_from_cart\'')
-# 	rfc = cur.fetchone()[0]
-# 	print("Executing query 2/4...")
-# 	cur.execute('SELECT COUNT(*) FROM customers WHERE "event_type" = \'cart\'')
-# 	cart = cur.fetchone()[0]
-# 	print("Executing query 3/4...")
-# 	cur.execute('SELECT COUNT(*) FROM customers WHERE "event_type" = \'purchase\'')
-# 	purchase = cur.fetchone()[0]
-# 	print("Executing query 4/4...")
-# 	cur.execute('SELECT COUNT(*) FROM customers WHERE "event_type" = \'view\'')
-# 	view = cur.fetchone()[0]
+	plt.subplots_adjust(hspace=0.5)
+	fig.canvas.set_window_title('Knight\'s stats')
+	try:
+		plt.show()
+	except KeyboardInterrupt as msg:
+		print(msg)
 
 
-# 	# view     = 9_654_310
-# 	# cart     = 5_486_521
-# 	# rfc      = 2_748_980
-# 	# purchase = 1_286_088
+def train_knight(cur, graph_divisions):
+	cur.execute("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = N'train_knight'")
+	test_titles = [title[0] for title in cur.fetchall()[:-1]]
+
+	fig, ax = plt.subplots(6, 5, figsize=(16, 16))
+
+	cur.execute("SELECT \"knight\" FROM train_knight")
+	knights = list(set([value[0] for value in cur.fetchall()]))
+	if knights[0] == "Jedi" and knights[1] == "Sith":
+		knights[0] = "Sith"
+		knights[1] = "Jedi"
+	hardcoded_colors = ["#BB000088", "#0000BB88", "#00BB0088", "#77770088", "#77007788", "#00777788"]
+	
+	curr_graph = 0
+	for title in test_titles:
+		for knight in range(len(knights)):
+			cur.execute("SELECT \"{0}\" FROM train_knight WHERE \"knight\" = '{1}'".format(title, knights[knight]))
+			values = [value[0] for value in cur.fetchall()]
+			spacing = np.linspace(min(values), max(values), graph_divisions)
+			digitized = np.digitize(values, spacing, right=False)
+			y = [0 for _ in range(graph_divisions)]
+			for digit in digitized:
+				y[digit - 1] += 1
+			ax[int(curr_graph / 5), int(curr_graph % 5)].bar(spacing, y, color=hardcoded_colors[knight % len(hardcoded_colors)], width=(spacing[2] - spacing[1]), label=knights[knight])
+		ax[int(curr_graph / 5), int(curr_graph % 5)].legend(loc="upper right")
+		ax[int(curr_graph / 5), int(curr_graph % 5)].set_title(title)
+		# print(values)
+		curr_graph += 1
+
+	plt.subplots_adjust(hspace=0.5)
+	fig.canvas.set_window_title('Many Knights\' stats')
+	try:
+		plt.show()
+	except KeyboardInterrupt as msg:
+		print(msg)
 
 
-# 	labels = ['view', 'cart', 'remove_form_cart', 'purchase']
-# 	values = [view, cart, rfc, purchase]
+
+def main():
+	graph_divisions = 42
+	load_dotenv()
+
+	print("Connecting to DB...")
+	conn = psycopg2.connect(
+		host = 'localhost',
+		dbname = os.getenv('DB_NAME'),
+		user = os.getenv('DB_USER'),
+		password = os.getenv('DB_PASSWORD'),
+		port = os.getenv('DB_PORT')
+	)
 
 
-# 	fig, ax = plt.subplots()
+	try:
+		cur = conn.cursor()
+	except Exception as msg:
+		print(msg)
+		return
 
-# 	ax.pie(values, labels=labels, autopct='%1.1f%%', wedgeprops = {"edgecolor" : "white", 'linewidth': 0.5})
-# 	print(rfc, cart, purchase, view)
+	test_knight(cur, graph_divisions)
+	train_knight(cur, graph_divisions)
 
-# 	try:
-# 		plt.show()
-# 	except KeyboardInterrupt as msg:
-# 		print(msg)
+	cur.close()
+	conn.close()
 
-# 	cur.close()
-# 	conn.close()
-
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
 
